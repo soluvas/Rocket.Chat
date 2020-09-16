@@ -4,7 +4,7 @@ image:
 tasks:
 - before: export ROOT_URL=$(gp url 3000)
   init: meteor npm install
-  # command: meteor
+  command: meteor npm start
 
 ports:
 - port: 3000
