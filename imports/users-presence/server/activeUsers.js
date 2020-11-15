@@ -2,6 +2,7 @@ import { UserPresenceEvents } from 'meteor/konecty:user-presence';
 
 import { settings } from '../../../app/settings/server';
 import { api } from '../../../server/sdk/api';
+import { Notification } from '../../../app/notification-queue/server/NotificationQueue';
 
 // mirror of object in /imports/startup/client/listenActiveUsers.js - keep updated
 export const STATUS_MAP = {
@@ -23,6 +24,18 @@ export const setUserStatus = (user, status/* , statusConnection*/) => {
 	api.broadcast('presence.status', {
 		user: { status, _id, username, statusText }, // TODO remove username
 	});
+	// v3.8.0 removed this Notifications.notifyLogged() call, so probably no longer needed?
+	// Notifications.notifyLogged('user-status', [
+	// 	_id,
+	// 	username,
+	// 	STATUS_MAP[status],
+	// 	statusText,
+	// ]);
+
+	if (status == 'offline' || status == 'away') {
+		// Expedite notification schedule for this user
+		Notification.expediteScheduleByUserId(_id);
+	}
 };
 
 let TroubleshootDisablePresenceBroadcast;
